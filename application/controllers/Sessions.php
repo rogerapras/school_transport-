@@ -2,10 +2,14 @@
 
 class Sessions extends CI_Controller {
 
+  public $currentUser = NULL;
+
   public function __construct() {
     parent::__construct();
-      $this->output
-        ->set_content_type('application/json');
+    $token = $this->input->get_request_header('X-Api-Key', TRUE);
+    $this->currentUser = $this->device->find_user($token);
+    $this->output
+      ->set_content_type('application/json');
   }
 
   public function login() {
@@ -25,6 +29,12 @@ class Sessions extends CI_Controller {
   }
 
   public function sign_up() {
+    if($this->currentUser == NULL || !$this->currentUser->isAdmin()) {
+      $this->output
+        ->set_status_header(401)
+        ->set_output(json_encode(array('code' => 401, 'message' => 'Unauthorized: Please login to add drivers/students')));
+      return;
+    }
     $this->form_validation->set_rules(
       'username', 'Username',
       'required|min_length[5]|max_length[12]|is_unique[users.username]',
@@ -37,6 +47,7 @@ class Sessions extends CI_Controller {
     $this->form_validation->set_rules('first_name', 'First name', 'required');
     $this->form_validation->set_rules('last_name', 'Last name', 'required');
     $this->form_validation->set_rules('passconf', 'Password Confirmation', 'required|matches[password]');
+    $this->form_validation->set_rules('type', 'Type', 'required|in_list[student,driver]');
 
     if( $this->form_validation->run() == FALSE ) {
       $this->output
@@ -55,11 +66,6 @@ class Sessions extends CI_Controller {
       }
     }
 
-  }
-
-
-  private function encrypted_password($password) {
-    return 'password-encrypted';
   }
 
   private function createSession($currentUser) {

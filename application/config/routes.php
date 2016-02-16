@@ -60,4 +60,8 @@ $route['students/(:num)']['DELETE'] = 'students/destroy/$1'; # DELETE /students/
 
 $route['login']['POST'] = 'sessions/login';
 $route['register']['POST'] = 'sessions/sign_up';
-$route['users/me']['GET'] = 'users/me';
+$route['drivers']['POST'] = 'sessions/sign_up';
+$route['students']['POST'] = 'sessions/sign_up';
+$route['user']['GET'] = 'users/me';
+$route['user']['PUT'] = 'users/update';
+$route['users/(:num)']['PUT'] = 'users/update/$1';
