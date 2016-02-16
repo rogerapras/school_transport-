@@ -16,6 +16,15 @@ class Users extends CI_Controller {
     }
   }
 
+  public function index($type = 'driver') {
+    $this->db->where('type', $type);
+    $result = $this->db->select("id, first_name, last_name, username, type")->get('users')->result();
+    $this->output
+      ->set_content_type('application/json')
+      ->set_status_header(200)
+      ->set_output(json_encode(array('users' => $result)));
+  }
+
   public function me() {
     if($this->currentUser != NULL) {
       $this->output
