@@ -65,6 +65,7 @@ $route['students']['POST'] = 'sessions/sign_up';
 $route['user']['GET'] = 'users/me';
 $route['user']['PUT'] = 'users/update';
 $route['users/(:num)']['PUT'] = 'users/update/$1';
+$route['users/(:num)']['DELETE'] = 'users/destroy/$1';
 $route['users']['GET'] = 'users/index';
 $route['users/(driver)']['GET'] = 'users/index/$1';
 $route['users/(student)']['GET'] = 'users/index/$1';

@@ -11,8 +11,11 @@ class Users extends CI_Controller {
     if($this->currentUser == NULL) {
       $this->output
         ->set_content_type('application/json')
-        ->set_status_header(404)
+        ->set_status_header(401)
         ->set_output(json_encode(array('code' => 401, 'message' => 'Unauthorized: You are not logged in.')));
+
+      $this->output->_display();
+      exit;
     }
   }
 
@@ -49,6 +52,23 @@ class Users extends CI_Controller {
           ->set_content_type('application/json')
           ->set_status_header(200)
           ->set_output(json_encode($this->currentUser->asJson()));
+      }
+    }
+  }
+
+  public function destroy($user_id) {
+    if($this->currentUser->isAdmin()) {
+      $user = $this->user->find($user_id);
+      if(!$user->isAdmin()) {
+        $user->destroy();
+        $this->output
+          ->set_content_type('application/json')
+          ->set_status_header(204);
+      } else {
+        $this->output
+          ->set_content_type('application/json')
+          ->set_status_header(403)
+          ->set_output(json_encode(array('code' => 403, 'message' => 'Forbidden: Not allowed to delete User')));
       }
     }
   }

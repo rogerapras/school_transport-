@@ -34,6 +34,13 @@ class User_model extends CI_Model {
     }
     $this->db->where('id', $this->id);
     $this->db->update('users', $this);
+    return $this->db->affected_rows();
+  }
+
+  public function destroy() {
+    $this->db->where('id', $this->id);
+    $this->db->delete('users');
+    return $this->db->affected_rows();
   }
 
   public function find($id) {
