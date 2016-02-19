@@ -62,6 +62,7 @@ $route['login']['POST'] = 'sessions/login';
 $route['register']['POST'] = 'sessions/sign_up';
 $route['drivers']['POST'] = 'sessions/sign_up';
 $route['students']['POST'] = 'sessions/sign_up';
+
 $route['user']['GET'] = 'users/me';
 $route['user']['PUT'] = 'users/update';
 $route['users/(:num)']['PUT'] = 'users/update/$1';
@@ -69,3 +70,10 @@ $route['users/(:num)']['DELETE'] = 'users/destroy/$1';
 $route['users']['GET'] = 'users/index';
 $route['users/(driver)']['GET'] = 'users/index/$1';
 $route['users/(student)']['GET'] = 'users/index/$1';
+
+$route['routes']['POST'] = 'routes/create';
+$route['routes/(:num)']['GET'] = 'routes/show/$1';
+$route['routes/(:num)/assign/(:num)']['POST'] = 'routes/assign/$1/$2';
+$route['routes/(:num)/unassign']['DELETE'] = 'routes/unassign/$1';
+$route['routes/(:num)']['PUT'] = 'routes/update/$1';
+$route['routes/(:num)']['DELETE'] = 'routes/destroy/$1';

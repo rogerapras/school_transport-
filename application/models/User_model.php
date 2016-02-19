@@ -2,6 +2,7 @@
 
 class User_model extends CI_Model {
 
+  public $id;
   public $first_name;
   public $last_name;
   public $username;
@@ -13,6 +14,28 @@ class User_model extends CI_Model {
   public function __construct() {
     parent::__construct();
   }
+
+  public static function initialize($user_row) {
+    $user = new self();
+    $user->setObject($user_row);
+    return $user;
+  }
+
+
+  public function setObject( $user_row) {
+
+    foreach($user_row as $key => $value) {
+      if( property_exists( $this, $key ) ) {
+        $this->$key = $value;
+      }
+    }
+  }
+
+
+  public function hasRoute() {
+    return !!$this->db->where('user_id', $this->id)->get('driver_routes')->row();
+  }
+
 
   public function create() {
     $this->id = $this->db->insert_id();
@@ -46,7 +69,9 @@ class User_model extends CI_Model {
   public function find($id) {
     $user = $this->db->where('id', $id)->get('users')->row();
     if( $user != NULL ) { 
-      $this->set($user);
+      $this->setObject($user);
+    } else {
+      return NULL;
     }
     return $this;
   }
