@@ -23,8 +23,8 @@ class Sessions extends CI_Controller {
 
     } else {
       $this->output
-        ->set_status_header(404)
-        ->set_output(json_encode(array('code' => 404, 'message' => 'Unauthorized: username/password does not match')));
+        ->set_status_header(401)
+        ->set_output(json_encode(array('code' => 401, 'message' => 'Unauthorized: username/password does not match')));
     }
   }
 
