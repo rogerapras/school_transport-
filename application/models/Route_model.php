@@ -13,7 +13,7 @@ class Route_model extends CI_Model {
   public $start_longitude;
   public $end_longitude;
   public $total_stops;
-  public $driver;
+  private $driver;
 
   public function __construct() {
     parent::__construct();
@@ -101,8 +101,10 @@ class Route_model extends CI_Model {
 
   private function setFromParams() {
     $parameters = $this->input->input_stream();
+    $ary = [];
     foreach($parameters as $key => $value) {
       if( property_exists( $this, $key ) ) {
+        $ary[$key] = $key;
         $this->$key = $value;
       }
     }
