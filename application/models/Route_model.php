@@ -93,9 +93,6 @@ class Route_model extends CI_Model {
     $this->db->from('users');
     $this->db->join('driver_routes', 'driver_routes.user_id = users.id', 'left');
     $this->db->where('driver_routes.route_id = ' . $this->id);
-    # $this->db->reset_query();
-    # echo $this->db->get_compiled_select('routes');
-    # exit;
     $user = $this->db->get()->row();
     if($user != null) {
       $this->driver = User_model::initialize($user);

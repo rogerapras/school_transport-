@@ -2,8 +2,7 @@
 
 class Routes extends CI_Controller {
 
-  public function __construct() {
-    parent::__construct();
+  public function authenticateAdmin() {
     $token = $this->input->get_request_header('X-Api-Key', TRUE);
     $this->currentUser = $this->device->find_user($token);
     $this->output
@@ -19,7 +18,13 @@ class Routes extends CI_Controller {
     }
   }
 
+  public function __construct() {
+    parent::__construct();
+  }
+
   public function index() {
+    $this->authenticateAdmin();
+
     $all = $this->input->get('unassigned');
     $routes = array();
     if(!isset($all)) {
@@ -39,6 +44,8 @@ class Routes extends CI_Controller {
   }
 
   public function show($route_id) {
+    $this->authenticateAdmin();
+
     $route = $this->route->find($route_id);
       $this->output
         ->set_status_header(200)
@@ -47,6 +54,8 @@ class Routes extends CI_Controller {
   }
 
   public function assign($route_id, $driver_id) {
+    $this->authenticateAdmin();
+
     $route = $this->route->find($route_id);
     $driver = $this->user->find($driver_id);
     if($driver->hasRoute()) {
@@ -62,6 +71,8 @@ class Routes extends CI_Controller {
   }
 
   public function unassign($route_id) {
+    $this->authenticateAdmin();
+
     $route = $this->route->find($route_id);
     $route->unassignDriver();
     $this->output
@@ -69,6 +80,8 @@ class Routes extends CI_Controller {
   }
 
   public function destroy($route_id) {
+    $this->authenticateAdmin();
+
     $route = $this->route->find($route_id);
     if($route == NULL) {
       $this->output
@@ -83,6 +96,7 @@ class Routes extends CI_Controller {
 
 
   public function create() {
+    $this->authenticateAdmin();
 
     $this->form_validation->set_rules('name', 'Name', 'required');
     $this->form_validation->set_rules('bus_number', 'Bus number', 'required');
