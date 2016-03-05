@@ -44,11 +44,23 @@ class Locations extends CI_Controller {
   public function get() {
     $this->authenticate();
 
-    $location = $this->db->where('user_id', $this->currentUser->id)->get('locations')->row();
-    $this->output
-      ->set_status_header(200)
-      ->set_content_type('appliation/json')
-      ->set_output(json_encode($location));
+    $user_id = $this->input->get('user_id');
+    if($user_id == NULL) {
+      $user_id = $this->currentUser->id;
+    }
+
+    $location = $this->db->where('user_id', $user_id)->get('locations')->row();
+    if($location == NULL) {
+      $this->output
+        ->set_status_header(404)
+        ->set_content_type('appliation/json')
+        ->set_output(json_encode(array('code' => 404, 'message' => 'Location not found with given user_id')));
+    } else {
+      $this->output
+        ->set_status_header(200)
+        ->set_content_type('appliation/json')
+        ->set_output(json_encode($location));
+    }
   }
 
 }
