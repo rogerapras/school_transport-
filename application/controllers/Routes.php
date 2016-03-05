@@ -19,6 +19,25 @@ class Routes extends CI_Controller {
     }
   }
 
+  public function index() {
+    $all = $this->input->get('unassigned');
+    $routes = array();
+    if(!isset($all)) {
+      $query = $this->db->get('routes');
+    } else {
+      $this->db->select('routes.*');
+      $query = $this->db->join('driver_routes', 'driver_routes.route_id = routes.id')->get('routes');
+    }
+    foreach($query->result() as $route_row) {
+      $route = Route_model::initialize($route_row);
+      array_push($routes, $route->asJson());
+    }
+
+    $this->output
+      ->set_status_header(200)
+      ->set_output(json_encode($routes));
+  }
+
   public function show($route_id) {
     $route = $this->route->find($route_id);
       $this->output

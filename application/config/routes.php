@@ -71,6 +71,7 @@ $route['users']['GET'] = 'users/index';
 $route['users/(driver)']['GET'] = 'users/index/$1';
 $route['users/(student)']['GET'] = 'users/index/$1';
 
+# $route['routes']['GET'] = 'routes';
 $route['routes']['POST'] = 'routes/create';
 $route['routes/(:num)']['GET'] = 'routes/show/$1';
 $route['routes/(:num)/assign/(:num)']['POST'] = 'routes/assign/$1/$2';
