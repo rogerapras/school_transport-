@@ -48,6 +48,13 @@ class Locations extends CI_Controller {
     if($user_id == NULL) {
       $user_id = $this->currentUser->id;
     }
+    $route_id = $this->input->get('route_id');
+    if(isset($route_id)) {
+      $row = $this->db->where('route_id', $route_id)->get('driver_routes')->row();
+      if($row != NULL) {
+        $user_id = $row->user_id;
+      }
+    }
 
     $location = $this->db->where('user_id', $user_id)->get('locations')->row();
     if($location == NULL) {
