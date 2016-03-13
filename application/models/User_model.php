@@ -7,8 +7,16 @@ class User_model extends CI_Model {
   public $last_name;
   public $username;
   public $salt;
+  public $password;
   public $encrypted_password;
   public $type;
+  public $phone;
+  public $allowed;
+  public $attending;
+  public $token;
+  public $roll_number;
+  public $latitude;
+  public $longitude;
 
 
   public function __construct() {
@@ -39,10 +47,12 @@ class User_model extends CI_Model {
 
   public function create() {
     $this->id = $this->db->insert_id();
-    $this->username = $this->input->post('username');
-    $this->first_name = $this->input->post('first_name');
-    $this->last_name = $this->input->post('last_name');
-    $this->type = $this->input->post('type');
+    $parameters = $this->input->post();
+    foreach($parameters as $key => $value) {
+      if( property_exists( $this, $key ) ) {
+        $this->$key = $value;
+      }
+    }
     $this->encrypted_password = $this->generateHashedPassword($this->input->post('password'), TRUE);
     $this->db->insert('users', $this);
     $this->id = $this->db->insert_id();
@@ -50,8 +60,12 @@ class User_model extends CI_Model {
   }
 
   public function update() {
-    $this->first_name = $this->input->input_stream('first_name');
-    $this->last_name = $this->input->input_stream('last_name');
+    $parameters = $this->input->input_stream();
+    foreach($parameters as $key => $value) {
+      if( property_exists( $this, $key ) ) {
+        $this->$key = $value;
+      }
+    }
     if($this->input->input_stream('password') != NULL) {
       $this->encrypted_password = $this->generateHashedPassword($this->input->input_stream('password'), TRUE);
     }
@@ -93,23 +107,30 @@ class User_model extends CI_Model {
   }
 
   private function set($user) {
-    $this->id = $user->id;
-    $this->first_name = $user->first_name;
-    $this->last_name = $user->last_name;
-    $this->username = $user->username;
-    $this->salt = $user->salt;
-    $this->encrypted_password = $user->encrypted_password;
-    $this->type = $user->type;
+    $this->setObject( $user );
   }
 
   public function asJson() {
-    return array(
+
+    $json = array(
       'id' => $this->id,
       'first_name' => $this->first_name,
       'last_name' => $this->last_name,
       'username' => $this->username,
-      'type' => $this->type
+      'type' => $this->type,
+      'phone' => $this->phone,
+      'token' => $this->token,
+      'password' => $this->password,
+      'latitude' => $this->latitude,
+      'longitude' => $this->longitude
     );
+
+    if( $this->type == 'student' ) {
+      $json['attending'] = $this->attending;
+      $json['allowed'] = $this->allowed;
+      $json['roll_number'] = $this->roll_number;
+    }
+    return $json;
   }
 
 

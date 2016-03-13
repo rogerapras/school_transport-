@@ -26,7 +26,8 @@ class Locations extends CI_Controller {
     $this->authenticate();
 
     $location = $this->db->where('user_id', $this->currentUser->id)->get('locations')->row();
-    if($location != NULL) {
+
+    if( $location != NULL ) {
       $this->db->set($this->input->post());
       $this->db->update('locations');
     } else {
@@ -34,7 +35,13 @@ class Locations extends CI_Controller {
       $this->db->set($this->input->post());
       $this->db->insert('locations');
     }
+
     $location = $this->db->where('user_id', $this->currentUser->id)->get('locations')->row();
+
+    if( isset($this->input->post('start')) ) {
+      # Send PUSH Notification
+      # Send POP  Notification
+    }
     $this->output
       ->set_status_header(200)
       ->set_content_type('appliation/json')
