@@ -36,12 +36,7 @@ class Device_model extends CI_Model {
       'id' => $this->id,
       'token' => $this->token,
       'device_id' => $this->device_id,
-      'user' => array(
-        'first_name' => $user->first_name,
-        'last_name' => $user->last_name,
-        'username' => $user->username,
-        'type' => $user->type
-      )
+      'user' => $user
     );
   }
 

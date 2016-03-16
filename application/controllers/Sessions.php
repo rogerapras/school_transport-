@@ -37,7 +37,7 @@ class Sessions extends CI_Controller {
     }
     $this->form_validation->set_rules(
       'username', 'Username',
-      'required|min_length[5]|max_length[12]|is_unique[users.username]',
+      'required|is_unique[users.username]',
       array(
         'required'      => 'You have not provided %s.',
         'is_unique'     => 'This %s already exists.'
