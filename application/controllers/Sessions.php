@@ -56,6 +56,12 @@ class Sessions extends CI_Controller {
     } else  {
       $user = $this->user->create();
       if($user != NULL) {
+        if($user->type == 'driver') {
+          $route = $this->route->find($this->input->post('route_id'));
+          if($route != NULL) {
+            $route->assignDriver($user);
+          }
+        }
         $this->output
           ->set_status_header(201)
           ->set_output(json_encode($this->createSession($user)->asJson()));
