@@ -65,6 +65,29 @@ class Route_model extends CI_Model {
     return $this->db->affected_rows();
   }
 
+  public function assignStudent($student) {
+    $route_student = $this->db->where('student_id', $student->id)->get('route_students')->row();
+    if($route_student == NULL) {
+      $this->db->insert('route_students', array('student_id' => $student->id, 'route_id' => $this->id));
+      return $this->db->insert_id();
+    } else {
+      $this->db->where('id', $route_student->id);
+      $this->db->update('route_students', array('route_id' => $this->id));
+      return $this->db->affected_rows();
+    }
+  }
+
+  public function students() {
+    $students = $this->db->join('route_students', 'route_students.student_id = users.id', 'left')
+      ->where('route_students.route_id', $this->id)
+      ->get('users')->result();
+    $users = array();
+    foreach($students as $student) {
+      array_push($users, User_model::initialize($student));
+    }
+    return $users;
+  }
+
 
   public function destroy() {
     $this->db->delete('driver_routes', array('route_id', $this->id));

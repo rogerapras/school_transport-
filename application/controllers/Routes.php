@@ -53,6 +53,28 @@ class Routes extends CI_Controller {
 
   }
 
+  public function assignStudent($route_id, $student_id) {
+    $this->authenticateAdmin();
+
+    $route = $this->route->find($route_id);
+    $student = $this->user->find($student_id);
+
+    $route->assignStudent($student);
+
+    $this->output
+      ->set_status_header(200)
+      ->set_output(json_encode($route->students()));
+  }
+
+  public function students($route_id) {
+    $this->authenticateAdmin();
+
+    $route = $this->route->find($route_id);
+    $this->output
+      ->set_status_header(200)
+      ->set_output(json_encode($route->students()));
+  }
+
   public function assign($route_id, $driver_id) {
     $this->authenticateAdmin();
 
