@@ -14,6 +14,7 @@ class Route_model extends CI_Model {
   public $end_longitude;
   public $total_stops;
   private $driver;
+  public $status;
 
   public function __construct() {
     parent::__construct();
@@ -38,6 +39,7 @@ class Route_model extends CI_Model {
       'start_longitude' => $this->start_longitude,
       'end_longitude' => $this->end_longitude,
       'total_stops' => $this->total_stops,
+      'status' => $this->status,
       'driver' => NULL
     );
     $driver = $this->driver();
