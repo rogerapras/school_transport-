@@ -114,6 +114,18 @@ class User_model extends CI_Model {
 
   public function asJson() {
 
+    $route = NULL;
+    if($this->type == 'driver') {
+      $route = $this->db->select('routes.*')
+        ->join('driver_routes', 'driver_routes.route_id = routes.id', 'left')
+        ->where('driver_routes.user_id', $this->id)->get('routes')->row();
+    } else if( $this->type == 'student') {
+      $route = $this->db->select('routes.*')
+        ->join('route_students', 'route_students.route_id = routes.id', 'left')
+        ->where('route_students.student_id', $this->id)->get('routes')->row();
+    }
+
+
     $json = array(
       'id' => $this->id,
       'first_name' => $this->first_name,
@@ -124,7 +136,8 @@ class User_model extends CI_Model {
       'token' => $this->token,
       'password' => $this->password,
       'latitude' => $this->latitude,
-      'longitude' => $this->longitude
+      'longitude' => $this->longitude,
+      'route' => $route
     );
 
     if( $this->type == 'student' ) {
