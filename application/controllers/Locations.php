@@ -38,10 +38,6 @@ class Locations extends CI_Controller {
 
     $location = $this->db->where('user_id', $this->currentUser->id)->get('locations')->row();
 
-    if( isset($this->input->post('start')) ) {
-      # Send PUSH Notification
-      # Send POP  Notification
-    }
     $this->output
       ->set_status_header(200)
       ->set_content_type('appliation/json')
