@@ -56,7 +56,7 @@ class Students extends CI_Controller {
   public function show_404() {
     $this->output
       ->set_content_type('application/json')
-      ->set_status_header(200)
+      ->set_status_header(404)
       ->set_output(json_encode(array('controller' => 'students', 'action' => 'not_found')));
   }
 }

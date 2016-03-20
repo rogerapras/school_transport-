@@ -97,6 +97,52 @@ class Route_model extends CI_Model {
     return $this->db->affected_rows();
   }
 
+  public function notifyStudents() {
+    $students = $this->db->select('token')->where('token <>', '')
+      ->join('route_students', 'route_students.student_id = users.id', 'left')
+      ->get('users')->result();
+    $registrationIds = array();
+    foreach($students as $student) {
+      array_push($registrationIds, $student->token);
+    }
+
+    if(count($registrationIds) > 0) {
+      $data = array('route_id' => $this->id, 'activity' => 'bus_status', 'value' => $this->status);
+      $this->pushNotification($registrationIds, $data);
+    }
+  }
+
+
+  public function pushNotification($registrationIds, $data) {
+    $apiKey = 'AIzaSyAbC0MHyaA4Rwmn9qsluSghc7kignq86fQ';
+    $url = 'https://android.googleapis.com/gcm/send';
+
+    $fields = array(
+      'registration_ids' => $registrationIds,
+      'data' => $data
+    );
+
+    $headers = array(
+      'Authorization: key=' . $apiKey,
+      'Content-Type: application/json'
+    );
+
+    $ch = curl_init();
+
+    curl_setopt( $ch, CURLOPT_URL, $url);
+    curl_setopt( $ch, CURLOPT_POST, true);
+    curl_setopt( $ch, CURLOPT_HTTPHEADER, $headers);
+    curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true);
+
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+
+    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($fields));
+
+    $result = curl_exec($ch);
+
+    curl_close($ch);
+  }
+
 
   public function find($route_id) {
     $route = $this->db->where('id', $route_id)->get('routes')->row();
@@ -145,8 +191,13 @@ class Route_model extends CI_Model {
   }
 
   public function update() {
+    $new_status = $this->input->input_stream('status');
+    $old_status = $this->status;
     $this->setFromParams();
     $this->db->where('id', $this->id);
     $this->db->update('routes', $this);
+    if($new_status != NULL && $new_status != $old_status) {
+      $this->notifyStudents();
+    }
   }
 }

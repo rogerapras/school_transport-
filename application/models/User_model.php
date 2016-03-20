@@ -71,6 +71,8 @@ class User_model extends CI_Model {
     }
     $this->db->where('id', $this->id);
     $this->db->update('users', $this);
+    $this->notifyDriver();
+    $this->notifyStudent();
     return $this->db->affected_rows();
   }
 
@@ -134,13 +136,75 @@ class User_model extends CI_Model {
   }
 
 
- public function generateHashedPassword($password, $isNew) {
-   $options = [
-     'cost' => 11,
-     'salt' => $this->getSalt($isNew),
-   ];
-   return password_hash($password, PASSWORD_BCRYPT, $options);
- }
+  public function notifyDriver() {
+    if(!isset($this->token)) {
+      return;
+    }
+
+    $attending = $this->input->input_stream('attending');
+    if( $attending != NULL && ($attending == 0 || $attending == 1) ) {
+      $route_student = $this->db->where('student_id', $this->id)->get('route_students')->row();
+      if($route_student != NULL) {
+        $driver_route = $this->db->where('route_id', $route_student->route_id)->get('driver_routes')->row();
+        if($driver_route != NULL) {
+          $data = array('user_id' => $this->id, 'activity' => 'student_attending', 'value' => $attending);
+          $registrationIds = array();
+          $registrationIds[] = $this->token;
+          $this->pushNotification($registrationIds, $data);
+        }
+      }
+    }
+  }
+
+  public function notifyStudent() {
+    $allowed = $this->input->input_stream('allowed');
+    if( $allowed != NULL && ( $allowed == 0 || $allowed == 1 ) ) {
+      $data = array('user_id' => $this->id, 'activity' => 'student_allowed', 'value' => $allowed);
+      $registrationIds = array();
+      $registrationIds[] = $this->token;
+      $this->pushNotification($registrationIds, $data);
+    }
+  }
+
+  public function pushNotification($registrationIds, $data) {
+    $apiKey = 'AIzaSyAbC0MHyaA4Rwmn9qsluSghc7kignq86fQ';
+    $url = 'https://android.googleapis.com/gcm/send';
+
+    $fields = array(
+      'registration_ids' => $registrationIds,
+      'data' => $data
+    );
+
+    $headers = array(
+      'Authorization: key=' . $apiKey,
+      'Content-Type: application/json'
+    );
+
+    $ch = curl_init();
+
+    curl_setopt( $ch, CURLOPT_URL, $url);
+    curl_setopt( $ch, CURLOPT_POST, true);
+    curl_setopt( $ch, CURLOPT_HTTPHEADER, $headers);
+    curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true);
+
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+
+    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($fields));
+
+    $result = curl_exec($ch);
+
+    curl_close($ch);
+  }
+
+
+
+  public function generateHashedPassword($password, $isNew) {
+    $options = [
+      'cost' => 11,
+      'salt' => $this->getSalt($isNew),
+    ];
+    return password_hash($password, PASSWORD_BCRYPT, $options);
+  }
 
   private function getSalt($isNew) {
     if($isNew == FALSE) {

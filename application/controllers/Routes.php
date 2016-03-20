@@ -2,6 +2,22 @@
 
 class Routes extends CI_Controller {
 
+  public function authenticate() {
+    $token = $this->input->get_request_header('X-Api-Key', TRUE);
+    $this->currentUser = $this->device->find_user($token);
+    $this->output
+      ->set_content_type('application/json');
+    if($this->currentUser == NULL || $this->currentUser->isStudent()) {
+      $this->output
+        ->set_status_header(401)
+        ->set_output(json_encode(array('code' => 401, 'message' => 'Unauthorized: You are not logged in.')));
+
+      $this->output->_display();
+      exit;
+
+    }
+  }
+
   public function authenticateAdmin() {
     $token = $this->input->get_request_header('X-Api-Key', TRUE);
     $this->currentUser = $this->device->find_user($token);
@@ -20,6 +36,15 @@ class Routes extends CI_Controller {
 
   public function __construct() {
     parent::__construct();
+  }
+
+  public function update($route_id) {
+    $this->authenticate();
+    $route = $this->route->find($route_id);
+    $route->update();
+    $this->output
+      ->set_status_header(200)
+      ->set_output(json_encode($route->asJson()));
   }
 
   public function index() {
@@ -47,9 +72,9 @@ class Routes extends CI_Controller {
     $this->authenticateAdmin();
 
     $route = $this->route->find($route_id);
-      $this->output
-        ->set_status_header(200)
-        ->set_output(json_encode($route->asJson()));
+    $this->output
+      ->set_status_header(200)
+      ->set_output(json_encode($route->asJson()));
 
   }
 

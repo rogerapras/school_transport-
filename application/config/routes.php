@@ -73,13 +73,13 @@ $route['users/(student)']['GET'] = 'users/index/$1';
 
 # $route['routes']['GET'] = 'routes';
 $route['routes']['POST'] = 'routes/create';
-$route['routes/(:num)']['GET'] = 'routes/show/$1';
 $route['routes/(:num)/assign/(:num)']['POST'] = 'routes/assign/$1/$2';
 $route['routes/(:num)/assign_student/(:num)']['POST'] = 'routes/assignStudent/$1/$2';
 $route['routes/(:num)/unassign']['DELETE'] = 'routes/unassign/$1';
 $route['routes/(:num)']['PUT'] = 'routes/update/$1';
 $route['routes/(:num)']['DELETE'] = 'routes/destroy/$1';
 $route['routes/(:num)/students']['GET'] = 'routes/students/$1';
+$route['routes/(:num)']['GET'] = 'routes/show/$1';
 
 $routes['locations/set']['POST'] = 'locations/set';
 $routes['locations/get']['GET'] = 'locations/get';
