@@ -152,6 +152,14 @@ class User_model extends CI_Model {
     }
   }
 
+  public function updateToken() {
+    $token = $this->input->post('token');
+    if($token != NULL) {
+      $this->db->where('id', $this->id);
+      $this->db->update('users', array('token' => $token));
+    }
+  }
+
 
   public function authenticate($username, $password) {
     $user = $this->db->where('username', $username)->get('users')->row();

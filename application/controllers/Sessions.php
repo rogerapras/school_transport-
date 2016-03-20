@@ -17,6 +17,7 @@ class Sessions extends CI_Controller {
     $password = $this->input->post('password');
     $user = $this->user->authenticate($username, $password);
     if($user != NULL) {
+      $user->updateToken();
       $this->output
         ->set_status_header(200)
         ->set_output(json_encode($this->createSession($user)->asJson()));
