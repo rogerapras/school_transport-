@@ -80,7 +80,7 @@ class Route_model extends CI_Model {
   }
 
   public function students() {
-    $students = $this->db->join('route_students', 'route_students.student_id = users.id', 'left')
+    $students = $this->db->join('route_students', 'route_students.student_id = users.id', 'inner')
       ->where('route_students.route_id', $this->id)
       ->get('users')->result();
     $users = array();
@@ -99,7 +99,7 @@ class Route_model extends CI_Model {
 
   public function notifyStudents() {
     $students = $this->db->select('token')->where('token <>', '')
-      ->join('route_students', 'route_students.student_id = users.id', 'left')
+      ->join('route_students', 'route_students.student_id = users.id', 'inner')
       ->get('users')->result();
     $registrationIds = array();
     foreach($students as $student) {
@@ -162,7 +162,7 @@ class Route_model extends CI_Model {
 
   public function driver() {
     $this->db->from('users');
-    $this->db->join('driver_routes', 'driver_routes.user_id = users.id', 'left');
+    $this->db->join('driver_routes', 'driver_routes.user_id = users.id', 'inner');
     $this->db->where('driver_routes.route_id = ' . $this->id);
     $user = $this->db->get()->row();
     if($user != null) {
