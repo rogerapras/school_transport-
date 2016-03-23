@@ -7,7 +7,7 @@ class Routes extends CI_Controller {
     $this->currentUser = $this->device->find_user($token);
     $this->output
       ->set_content_type('application/json');
-    if($this->currentUser == NULL || $this->currentUser->isStudent()) {
+    if($this->currentUser == NULL || !$this->currentUser->isStudent()) {
       $this->output
         ->set_status_header(401)
         ->set_output(json_encode(array('code' => 401, 'message' => 'Unauthorized: You are not logged in.')));
@@ -70,7 +70,7 @@ class Routes extends CI_Controller {
   }
 
   public function show($route_id) {
-    $this->authenticateAdmin();
+    $this->authenticate();
 
     $route = $this->route->find($route_id);
     $this->output
