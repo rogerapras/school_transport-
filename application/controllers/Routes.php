@@ -99,7 +99,7 @@ class Routes extends CI_Controller {
   }
 
   public function students($route_id) {
-    $this->authenticateAdmin();
+    $this->authenticate();
 
     $route = $this->route->find($route_id);
     $this->output
