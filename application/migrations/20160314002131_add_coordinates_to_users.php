@@ -12,7 +12,7 @@ class Migration_Add_coordinates_to_users extends CI_Migration {
   }
 
   public function down() {
-    $this->dbforge->remove_column('users', 'longitude');
-    $this->dbforge->remove_column('users', 'latitude');
+    $this->dbforge->drop_column('users', 'longitude');
+    $this->dbforge->drop_column('users', 'latitude');
   }
 }

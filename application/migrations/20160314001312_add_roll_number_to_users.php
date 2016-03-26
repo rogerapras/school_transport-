@@ -14,7 +14,7 @@ class Migration_Add_roll_number_to_users extends CI_Migration {
 
   public function down() {
 
-    $this->dbforge->remove_column('users', 'roll_number');
+    $this->dbforge->drop_column('users', 'roll_number');
   }
 
 }

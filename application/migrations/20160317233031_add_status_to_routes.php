@@ -11,7 +11,7 @@ class Migration_Add_status_to_routes extends CI_Migration {
   }
 
   public function down() {
-    $this->dbforge->remove_column('routes', 'status');
+    $this->dbforge->drop_column('routes', 'status');
   }
 }
 
