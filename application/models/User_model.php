@@ -79,7 +79,10 @@ class User_model extends CI_Model {
   public function destroy() {
     $this->db->where('id', $this->id);
     $this->db->delete('users');
-    return $this->db->affected_rows();
+    $affected_rows = $this->db->affected_rows();
+    $this->db->where('user_id', $this->id)->delete('driver_routes');
+    $this->db->where('student_id', $this->id)->delete('route_students');
+    return $affected_rows;
   }
 
   public function find($id) {
