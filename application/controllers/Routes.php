@@ -55,9 +55,12 @@ class Routes extends CI_Controller {
     if(!isset($all)) {
       $query = $this->db->get('routes');
     } else {
-      $this->db->select('routes.*');
-      $query = $this->db->join('driver_routes', 'driver_routes.route_id = routes.id', 'LEFT OUTER')
-        ->where('driver_routes.id', NULL)->get('routes');
+      $where_clause = $this->db->select('driver_routes.route_id')
+        ->from('driver_routes')
+        ->join('users', 'users.id = driver_routes.user_id', 'LEFT OUTER')
+        ->where('users.id', NULL)->get_compiled_select();
+      $query = $this->db->select('routes.*')
+        ->where("id IN ($where_clause)")->get('routes');
     }
     foreach($query->result() as $route_row) {
       $route = Route_model::initialize($route_row);

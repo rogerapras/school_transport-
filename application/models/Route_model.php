@@ -161,7 +161,7 @@ class Route_model extends CI_Model {
   }
 
   public function driver() {
-    $this->db->from('users');
+    $this->db->from('users')->select('users.*');
     $this->db->join('driver_routes', 'driver_routes.user_id = users.id', 'inner');
     $this->db->where('driver_routes.route_id = ' . $this->id);
     $user = $this->db->get()->row();
