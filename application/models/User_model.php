@@ -80,8 +80,9 @@ class User_model extends CI_Model {
     $this->db->where('id', $this->id);
     $this->db->delete('users');
     $affected_rows = $this->db->affected_rows();
-    $this->db->where('user_id', $this->id)->delete('driver_routes');
-    $this->db->where('student_id', $this->id)->delete('route_students');
+    $this->db->where('driver_id', $this->id)->delete('driver_timings');
+    $this->db->where('student_id', $this->id)->delete('student_timings');
+    $this->db->where('user_id', $this->id)->delete('locations');
     return $affected_rows;
   }
 
@@ -115,18 +116,43 @@ class User_model extends CI_Model {
     $this->setObject( $user );
   }
 
-  public function asJson() {
 
-    $route = NULL;
-    if($this->type == 'driver') {
-      $route = $this->db->select('routes.*')
-        ->join('driver_routes', 'driver_routes.route_id = routes.id', 'left')
-        ->where('driver_routes.user_id', $this->id)->get('routes')->row();
-    } else if( $this->type == 'student') {
-      $route = $this->db->select('routes.*')
-        ->join('route_students', 'route_students.route_id = routes.id', 'left')
-        ->where('route_students.student_id', $this->id)->get('routes')->row();
+  public function driverRoutes() {
+    $result = $this->db->select('routes.*')
+      ->join('timings', 'timings.route_id = routes.id', 'INNER')
+      ->join('driver_timings', 'driver_timings.timing_id = timings.id', 'INNER')
+      ->where('driver_timings.driver_id', $this->id)->get('routes')->result();
+    $routes = array();
+    foreach($result as $row) {
+      $routes[] = Route_model::initialize($row)->asJson();
     }
+    return $routes;
+  }
+
+  public function studentRoute() {
+    $row = $this->db->select('routes.*')
+      ->join('timings', 'timings.route_id = routes.id', 'INNER')
+      ->join('student_timings', 'student_timings.timing_id = timings.id', 'INNER')
+      ->where('student_timings.student_id', $this->id)->get('routes')->row();
+    if(isset($row)) {
+      return [Route_model::initialize($row)->asJson()];
+    } else {
+      return array();
+    }
+  }
+
+
+  public function routeAsJson() {
+    $json = $this->asJson();
+    if($this->type == 'driver') {
+      $json['routes'] = $this->driverRoutes();
+    } elseif ($this->type == 'student') {
+      $json['routes'] = $this->studentRoute();
+    }
+    return $json;
+  }
+
+  public function asJson() {
 
 
     $json = array(
@@ -139,8 +165,31 @@ class User_model extends CI_Model {
       'token' => $this->token,
       'password' => $this->password,
       'latitude' => $this->latitude,
-      'longitude' => $this->longitude,
-      'route' => $route
+      'longitude' => $this->longitude
+    );
+
+    if( $this->type == 'student' ) {
+      $json['attending'] = $this->attending;
+      $json['allowed'] = $this->allowed;
+      $json['roll_number'] = $this->roll_number;
+    }
+    return $json;
+  }
+
+  public function asJsonStudent() {
+
+
+    $json = array(
+      'id' => $this->id,
+      'first_name' => $this->first_name,
+      'last_name' => $this->last_name,
+      'username' => $this->username,
+      'type' => $this->type,
+      'phone' => $this->phone,
+      'token' => $this->token,
+      'password' => $this->password,
+      'latitude' => $this->latitude,
+      'longitude' => $this->longitude
     );
 
     if( $this->type == 'student' ) {
@@ -159,10 +208,10 @@ class User_model extends CI_Model {
 
     $attending = $this->input->input_stream('attending');
     if( $attending != NULL && ($attending == 0 || $attending == 1) ) {
-      $route_student = $this->db->where('student_id', $this->id)->get('route_students')->row();
-      if($route_student != NULL) {
-        $driver_route = $this->db->where('route_id', $route_student->route_id)->get('driver_routes')->row();
-        if($driver_route != NULL) {
+      $student_timing = $this->db->where('student_id', $this->id)->get('student_timings')->row();
+      if($student_timing != NULL) {
+        $driver_timing = $this->db->where('timing_id', $student_timing->timing_id)->get('driver_timings')->row();
+        if($driver_timing != NULL) {
           $data = array('user_id' => $this->id, 'activity' => 'student_attending', 'value' => $attending);
           $registrationIds = array();
           $registrationIds[] = $this->token;

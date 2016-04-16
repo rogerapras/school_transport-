@@ -51,11 +51,11 @@ class Locations extends CI_Controller {
     if($user_id == NULL) {
       $user_id = $this->currentUser->id;
     }
-    $route_id = $this->input->get('route_id');
-    if(isset($route_id)) {
-      $row = $this->db->where('route_id', $route_id)->get('driver_routes')->row();
+    $timing_id = $this->input->get('timing_id');
+    if(isset($timing_id)) {
+      $row = $this->db->where('timing_id', $timing_id)->get('driver_timings')->row();
       if($row != NULL) {
-        $user_id = $row->user_id;
+        $user_id = $row->driver_id;
       }
     }
 

@@ -15,6 +15,7 @@ class Route_model extends CI_Model {
   public $total_stops;
   private $driver;
   public $status;
+  private $timings;
 
   public function __construct() {
     parent::__construct();
@@ -27,25 +28,28 @@ class Route_model extends CI_Model {
     return $this;
   }
 
+  public function getTimings() {
+    $result = $this->db->where('route_id', $this->id)->get('timings')->result();
+    $timings = array();
+    foreach($result as $row) {
+      $timing = Timing_model::initialize($row);
+      $timings[] = $timing->asJson();
+    }
+    return $timings;
+  }
+
   public function asJson() {
     $response = array(
       'id' => $this->id,
       'name' => $this->name,
       'bus_number' => $this->bus_number,
-      'arrival_time' => $this->arrival_time,
-      'departure_time' => $this->departure_time,
       'start_latitude' => $this->start_latitude,
       'end_latitude' => $this->end_latitude,
       'start_longitude' => $this->start_longitude,
       'end_longitude' => $this->end_longitude,
       'total_stops' => $this->total_stops,
-      'status' => $this->status,
-      'driver' => NULL
+      'timings' => $this->getTimings()
     );
-    $driver = $this->driver();
-    if(isset($driver) && isset($driver->id)) {
-      $response['driver'] = $driver->asJson();
-    }
     return $response;
   }
 
@@ -92,56 +96,16 @@ class Route_model extends CI_Model {
 
 
   public function destroy() {
-    $this->db->delete('driver_routes', array('route_id', $this->id));
+    $result = $this->db->where('route_id', $this->id)->get('timings')->result();
+
+    foreach($result as $row) {
+      $timing = Timing_model::initialize($row);
+      $timing->remove();
+    }
     $this->db->delete('routes', array('id' => $this->id));
     return $this->db->affected_rows();
   }
 
-  public function notifyStudents() {
-    $students = $this->db->select('token')->where('token <>', '')
-      ->join('route_students', 'route_students.student_id = users.id', 'inner')
-      ->get('users')->result();
-    $registrationIds = array();
-    foreach($students as $student) {
-      array_push($registrationIds, $student->token);
-    }
-
-    if(count($registrationIds) > 0) {
-      $data = array('route_id' => $this->id, 'activity' => 'bus_status', 'value' => $this->status);
-      $this->pushNotification($registrationIds, $data);
-    }
-  }
-
-
-  public function pushNotification($registrationIds, $data) {
-    $apiKey = 'AIzaSyAbC0MHyaA4Rwmn9qsluSghc7kignq86fQ';
-    $url = 'https://android.googleapis.com/gcm/send';
-
-    $fields = array(
-      'registration_ids' => $registrationIds,
-      'data' => $data
-    );
-
-    $headers = array(
-      'Authorization: key=' . $apiKey,
-      'Content-Type: application/json'
-    );
-
-    $ch = curl_init();
-
-    curl_setopt( $ch, CURLOPT_URL, $url);
-    curl_setopt( $ch, CURLOPT_POST, true);
-    curl_setopt( $ch, CURLOPT_HTTPHEADER, $headers);
-    curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true);
-
-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-
-    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($fields));
-
-    $result = curl_exec($ch);
-
-    curl_close($ch);
-  }
 
 
   public function find($route_id) {

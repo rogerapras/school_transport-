@@ -1,5 +1,7 @@
 <?php
 
+
+
 class Routes extends CI_Controller {
 
   public function authenticate() {
@@ -42,6 +44,9 @@ class Routes extends CI_Controller {
     $this->authenticate();
     $route = $this->route->find($route_id);
     $route->update();
+
+    $timings = $this->input->post('timings');
+    $this->timing->createFrom($route->id, $timings);
     $this->output
       ->set_status_header(200)
       ->set_output(json_encode($route->asJson()));
@@ -55,9 +60,11 @@ class Routes extends CI_Controller {
     if(!isset($all)) {
       $query = $this->db->get('routes');
     } else {
-      $this->db->select('routes.*');
-      $query = $this->db->join('driver_routes', 'driver_routes.route_id = routes.id', 'LEFT OUTER')
-        ->where('driver_routes.id', NULL)->get('routes');
+      $this->db->select('routes.* ');
+      $query = $this->db->join('timings', 'timings.route_id = routes.id', 'LEFT OUTER')
+        ->join('driver_timings', 'driver_timings.timing_id = timings.id', 'LEFT OUTER')
+        ->group_by('routes.id')
+        ->where('driver_timings.timing_id', NULL)->get('routes');
     }
     foreach($query->result() as $route_row) {
       $route = Route_model::initialize($route_row);
@@ -85,53 +92,6 @@ class Routes extends CI_Controller {
 
   }
 
-  public function assignStudent($route_id, $student_id) {
-    $this->authenticateAdmin();
-
-    $route = $this->route->find($route_id);
-    $student = $this->user->find($student_id);
-
-    $route->assignStudent($student);
-
-    $this->output
-      ->set_status_header(200)
-      ->set_output(json_encode($route->students()));
-  }
-
-  public function students($route_id) {
-    $this->authenticate();
-
-    $route = $this->route->find($route_id);
-    $this->output
-      ->set_status_header(200)
-      ->set_output(json_encode($route->students()));
-  }
-
-  public function assign($route_id, $driver_id) {
-    $this->authenticateAdmin();
-
-    $route = $this->route->find($route_id);
-    $driver = $this->user->find($driver_id);
-    if($driver->hasRoute()) {
-      $this->output
-        ->set_status_header(422)
-        ->set_output(json_encode(array('code' => 422, 'message' => 'Driver already assigned to an other route')));
-    } else {
-      $route->assignDriver($driver);
-      $this->output
-        ->set_status_header(201)
-        ->set_output(json_encode($route->asJson()));
-    }
-  }
-
-  public function unassign($route_id) {
-    $this->authenticateAdmin();
-
-    $route = $this->route->find($route_id);
-    $route->unassignDriver();
-    $this->output
-      ->set_status_header(204);
-  }
 
   public function destroy($route_id) {
     $this->authenticateAdmin();
@@ -154,8 +114,6 @@ class Routes extends CI_Controller {
 
     $this->form_validation->set_rules('name', 'Name', 'required');
     $this->form_validation->set_rules('bus_number', 'Bus number', 'required');
-    $this->form_validation->set_rules('arrival_time', 'Arrival', 'required');
-    $this->form_validation->set_rules('departure_time', 'Departure', 'required');
     $this->form_validation->set_rules('start_latitude', 'Start latitude', 'required|numeric');
     $this->form_validation->set_rules('end_latitude', 'End Latitude', 'required|numeric');
     $this->form_validation->set_rules('start_longitude', 'Start longitude', 'required|numeric');
@@ -172,6 +130,10 @@ class Routes extends CI_Controller {
 
     
     $route = $this->route->create();
+    $timings = $this->input->post('timings');
+    if(isset($timings)) {
+      $this->timing->createFrom($route->id, $timings);
+    }
     $this->output
       ->set_status_header(201)
       ->set_output(json_encode($route->asJson()));

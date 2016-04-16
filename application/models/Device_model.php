@@ -31,23 +31,13 @@ class Device_model extends CI_Model {
   }
 
   public function asJson() {
-    $user = $this->db->where('id', $this->user_id)->get('users')->row();
-    $route = NULL;
-    if(isset($user) && $user->type == 'driver') {
-      $route = $this->db->select('routes.*')
-        ->join('driver_routes', 'driver_routes.route_id = routes.id', 'left')
-        ->where('driver_routes.user_id', $user->id)->get('routes')->row();
-    } else if( isset($user) && $user->type == 'student') {
-      $route = $this->db->select('routes.*')
-        ->join('route_students', 'route_students.route_id = routes.id', 'left')
-        ->where('route_students.student_id', $user->id)->get('routes')->row();
-    }
+    $row = $this->db->where('id', $this->user_id)->get('users')->row();
+    $user = User_model::initialize($row);
     return array(
       'id' => $this->id,
       'token' => $this->token,
       'device_id' => $this->device_id,
-      'user' => $user,
-      'route' => $route
+      'user' => $user->routeAsJson()
     );
   }
 

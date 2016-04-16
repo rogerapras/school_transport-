@@ -57,14 +57,16 @@ class Sessions extends CI_Controller {
     } else  {
       $user = $this->user->create();
       if($user != NULL) {
-        $route = $this->route->find($this->input->post('route_id'));
-        if($route != NULL) {
-          if($user->type == 'driver') {
-            $route->assignDriver($user);
-          } else {
-            $route->assignStudent($user);
+        $timing_ids = $this->input->post('timing_ids');
+        foreach($timing_ids as $timing_id) {
+          $timing = $this->timing->find($timing_id);
+          if($timing != NULL) {
+            if($user->type == 'driver') {
+              $timing->assignDriver($user);
+            } else {
+              $timing->assignStudent($user);
+            }
           }
-
         }
         $this->output
           ->set_status_header(201)

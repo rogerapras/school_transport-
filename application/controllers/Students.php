@@ -11,6 +11,13 @@ class Students extends CI_Controller {
   }
 
   public function create() {
+    $output = json_encode($this->input->post());
+    $this->output
+      ->set_content_type('application/json')
+      ->set_status_header(200)
+      ->set_output($output);
+    $this->output->_display();   
+    exit;
     # $this->load->model('user_model');
     # var_dump($this->user->create());
     # $user = $this->user->authenticate('rubyonrails3', 'password');

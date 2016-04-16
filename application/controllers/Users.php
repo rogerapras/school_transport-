@@ -37,7 +37,7 @@ class Users extends CI_Controller {
       $this->output
         ->set_content_type('application/json')
         ->set_status_header(200)
-        ->set_output(json_encode($this->currentUser->asJson()));
+        ->set_output(json_encode($this->currentUser->routeAsJson()));
     }
   }
 
@@ -63,6 +63,13 @@ class Users extends CI_Controller {
   public function destroy($user_id) {
     if($this->currentUser->isAdmin()) {
       $user = $this->user->find($user_id);
+      if($user == NULL) {
+        $this->output
+          ->set_status_header(404)
+          ->set_output(json_encode(array('code' => 404, 'message' => 'User not found with Given ID')));
+        $this->output->_display();
+        exit;
+      }
       if(!$user->isAdmin()) {
         $user->destroy();
         $this->output

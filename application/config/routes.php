@@ -81,5 +81,14 @@ $route['routes/(:num)']['DELETE'] = 'routes/destroy/$1';
 $route['routes/(:num)/students']['GET'] = 'routes/students/$1';
 $route['routes/(:num)']['GET'] = 'routes/show/$1';
 
+$route['timings']['POST'] = 'timings/create';
+$route['timings/(:num)/assign/(:num)']['POST'] = 'timings/assign/$1/$2';
+$route['timings/(:num)/assign_student/(:num)']['POST'] = 'timings/assignStudent/$1/$2';
+$route['timings/(:num)/unassign']['DELETE'] = 'timings/unassign/$1';
+$route['timings/(:num)']['PUT'] = 'timings/update/$1';
+$route['timings/(:num)']['DELETE'] = 'timings/destroy/$1';
+$route['timings/(:num)/students']['GET'] = 'timings/students/$1';
+$route['timings/(:num)']['GET'] = 'timings/show/$1';
+
 $routes['locations/set']['POST'] = 'locations/set';
 $routes['locations/get']['GET'] = 'locations/get';
