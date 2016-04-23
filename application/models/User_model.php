@@ -135,7 +135,7 @@ class User_model extends CI_Model {
       ->join('student_timings', 'student_timings.timing_id = timings.id', 'INNER')
       ->where('student_timings.student_id', $this->id)->get('routes')->row();
     if(isset($row)) {
-      return [Route_model::initialize($row)->asJson()];
+      return [Route_model::initialize($row)->asJson($this)];
     } else {
       return array();
     }

@@ -140,8 +140,9 @@ class Timing_model extends CI_Model {
       return $this->db->insert_id();
     } else {
       $this->db->set('timing_id', $this->id);
-      $this->db->update('student_timings', array('student_id', $student->id));
-      return $this->db->affected_row();
+      $this->db->where('student_id', $student->id);
+      $this->db->update('student_timings');
+      return $this->db->affected_rows();
     }
   }
 

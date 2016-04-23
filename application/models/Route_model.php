@@ -28,8 +28,14 @@ class Route_model extends CI_Model {
     return $this;
   }
 
-  public function getTimings() {
-    $result = $this->db->where('route_id', $this->id)->get('timings')->result();
+  public function getTimings($user = NULL) {
+    if(isset($user)) {
+    $result = $this->db->where('route_id', $this->id)->select('timings.*')
+      ->join('student_timings', 'student_timings.timing_id = timings.id', 'INNER')
+      ->where('student_timings.student_id', $user->id)->get('timings')->result();
+    } else {
+      $result = $this->db->where('route_id', $this->id)->get('timings')->result();
+    }
     $timings = array();
     foreach($result as $row) {
       $timing = Timing_model::initialize($row);
@@ -38,7 +44,7 @@ class Route_model extends CI_Model {
     return $timings;
   }
 
-  public function asJson() {
+  public function asJson($user = NULL) {
     $response = array(
       'id' => $this->id,
       'name' => $this->name,
@@ -48,7 +54,7 @@ class Route_model extends CI_Model {
       'start_longitude' => $this->start_longitude,
       'end_longitude' => $this->end_longitude,
       'total_stops' => $this->total_stops,
-      'timings' => $this->getTimings()
+      'timings' => $this->getTimings($user)
     );
     return $response;
   }
