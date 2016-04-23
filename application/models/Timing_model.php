@@ -26,6 +26,7 @@ class Timing_model extends CI_Model {
   public function notifyStudents() {
     $students = $this->db->select('token')->where('token <>', '')
       ->join('student_timings', 'student_timings.student_id = users.id', 'INNER')
+      ->where('student_timings.timing_id', $this->id)
       ->get('users')->result();
     $registrationIds = array();
     foreach($students as $student) {
