@@ -41,17 +41,35 @@ class Users extends CI_Controller {
     }
   }
 
+
+  private function updateTimings($user) {
+    $timing_ids = $this->input->input_stream('timing_ids');
+    foreach($timing_ids as $timing_id) {
+      $timing = $this->timing->find($timing_id);
+      if($timing != NULL) {
+        if($user->type == 'driver') {
+          $timing->assignDriver($user);
+        } else {
+          $timing->assignStudent($user);
+        }
+      }
+    }
+  }
+
   public function update($user_id = NULL) {
     if($this->currentUser != NULL) {
       if(isset($user_id) && $this->currentUser->isAdmin()) {
         $user = $this->user->find($user_id);
         $user->update();
+        $this->updateTimings($user);
+
         $this->output
           ->set_content_type('application/json')
           ->set_status_header(200)
           ->set_output(json_encode($this->user->asJson()));
       } else {
         $this->currentUser->update();
+        $this->updateTimings($this->currentUser);
         $this->output
           ->set_content_type('application/json')
           ->set_status_header(200)
